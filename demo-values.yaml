@@ -1,0 +1,240 @@
+persistence:
+  enabled: true
+externalProtocol: https
+# The FQDN for Harbor service
+externalDomain: harbor.domain.io
+# The Port for Harbor service, leave empty if the service 
+# is to be bound to port 80/443
+externalPort: 
+harborAdminPassword: REPLACEME
+authenticationMode: "db_auth"
+selfRegistration: "on"
+ldap:
+  url: "ldaps://ldapserver"
+  searchDN: ""
+  searchPassword: ""
+  baseDN: ""
+  filter: "(objectClass=person)"
+  uid: "uid"
+  scope: "2"
+  timeout: "5"
+  verifyCert: "True"
+email:
+  host: "smtp.mydomain.com"
+  port: "25"
+  username: "sample_admin@mydomain.com"
+  password: "REPLACEME"
+  ssl: "false"
+  insecure: "false"
+  from: "admin <sample_admin@mydomain.com>"
+  identity: ""
+
+# The secret key used for encryption. Must be a string of 16 chars.
+secretKey: Xnaatv9mQ8hkYtsaAX8LKCTK
+
+# ingress controller.
+ingress:
+# I am setting up ingress outside of habor deploy
+  enabled: false
+
+
+# The tag for Harbor docker images.
+harborImageTag: &harbor_image_tag dev
+
+adminserver:
+  image:
+    repository: vmware/harbor-adminserver
+    tag: *harbor_image_tag
+    pullPolicy: IfNotPresent
+  volumes:
+    config:
+      # storageClass: "-"
+      accessMode: ReadWriteOnce
+      size: 1Gi
+  # resources:
+  #  requests:
+  #    memory: 256Mi
+  #    cpu: 100m
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+jobservice:
+  image:
+    repository: vmware/harbor-jobservice
+    tag: *harbor_image_tag
+    pullPolicy: IfNotPresent
+  secret: not-a-secure-secret
+  maxWorkers: 50
+# resources:
+#   requests:
+#     memory: 256Mi
+#     cpu: 100m
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+ui:
+  image:
+    repository: vmware/harbor-ui
+    tag: *harbor_image_tag
+    pullPolicy: IfNotPresent
+  secret: not-a-secure-secret
+# resources:
+#  requests:
+#    memory: 256Mi
+#    cpu: 100m
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# TODO: change the style to be same with redis
+database:
+  # if external database is used, set "type" to "external"
+  # and fill the connection informations in "external" section
+  type: internal
+  internal:
+    image:
+      repository: vmware/harbor-db
+      tag: *harbor_image_tag
+      pullPolicy: IfNotPresent
+    # the superuser password of database
+    password: "REPLACEME"
+    volumes:
+      data:
+        # storageClass: "-"
+        accessMode: ReadWriteOnce
+        size: 1Gi
+    # resources:
+    #  requests:
+    #    memory: 256Mi
+    #    cpu: 100m
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+  external:
+    host: "192.168.0.1"
+    port: "5432"
+    username: "user"
+    password: "REPLACEME"
+    coreDatabase: "registry"
+    clairDatabase: "clair"
+    notaryServerDatabase: "notary_server"
+    notarySignerDatabase: "notary_signer"
+
+registry:
+  image:
+    repository: vmware/registry-photon
+    tag: dev
+    pullPolicy: IfNotPresent
+  httpSecret: not-a-secure-secret
+  logLevel: info
+  storage:
+    type: s3
+    s3:
+      region: us-west-2
+      bucket: harbor-demo
+      accesskey: AWS_ACCESS_KEY
+      secretkey: AWS_SECRET_KEY
+      #regionendpoint: http://myobjects.local
+      #encrypt: false
+      #keyid: mykeyid
+      #secure: true
+      #v4auth: true
+      #chunksize: 5242880
+      #rootdirectory: /s3/object/name/prefix
+      #storageclass: STANDARD
+  ## Persist data to a persistent volume
+  volumes:
+    data:
+      # storageClass: "-"
+      accessMode: ReadWriteOnce
+      size: 5Gi
+  # resources:
+  #  requests:
+  #    memory: 256Mi
+  #    cpu: 100m
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+chartmuseum:
+  enabled: true
+  image:
+    repository: vmware/chartmuseum-photon
+    tag: dev
+    pullPolicy: IfNotPresent
+  volumes:
+    data:
+      # storageClass: "-"
+      accessMode: ReadWriteOnce
+      size: 5Gi
+  # resources:
+  #  requests:
+  #    memory: 256Mi
+  #    cpu: 100m
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+clair:
+  enabled: true
+  image:
+    repository: vmware/clair-photon
+    tag: dev
+    pullPolicy: IfNotPresent
+  volumes:
+    pgData:
+      # storageClass: "-"
+      accessMode: ReadWriteOnce
+      size: 1Gi
+  # resources:
+  #  requests:
+  #    memory: 256Mi
+  #    cpu: 100m
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+redis:
+  # if external Redis is used, set "external.enabled" to "true"
+  # and fill the connection informations in "external" section.
+  # or the internal Redis will be used
+  usePassword: false
+  password: "REPLACEME"
+  cluster:
+    enabled: false
+  master:
+    persistence:
+# TODO: There is a perm issue: Can't open the append-only file: Permission denied
+# TODO: Setting it to false is a temp workaround.  Will re-visit this problem.
+      enabled: false
+  external:
+    enabled: false
+    host: "192.168.0.2"
+    port: "6379"
+    databaseIndex: "0"
+    usePassword: false
+    password: "REPLACEME"
+
+notary:
+  enabled: true
+  server:
+    image:
+      repository: vmware/notary-server-photon
+      tag: dev
+      pullPolicy: IfNotPresent
+  signer:
+    image:
+      repository: vmware/notary-signer-photon
+      tag: dev
+      pullPolicy: IfNotPresent
+    env:
+      NOTARY_SIGNER_DEFAULTALIAS: defaultalias
+    # The TLS certificate for Notary Signer. Will auto generate them if unspecified here.
+    caCrt:
+    tlsCrt:
+    tlsKey:
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
