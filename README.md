@@ -2,7 +2,7 @@
 
 The purpose of this repo is to outline the steps taken to setup an environment for [Harbor](https://github.com/goharbor/harbor). 
 
-Includes additional examples and finds while working with on the demo.
+Includes additional examples and discoveries while working on the demo.
 
 
 ### What is Harbor?
@@ -13,7 +13,7 @@ Includes additional examples and finds while working with on the demo.
 
 Lighting Talk slides can be found [here](https://prezi.com/view/NzcvsMfHBfz1LQRpqhuE/)
 
-### Installation:
+### Installation
 
 It is recommended to install Harbor using Helm Charts, The latest chart can be found at [goharbor/habor-helm](https://github.com/goharbor/harbor-helm)
 
@@ -28,6 +28,7 @@ It is recommended to install Harbor using Helm Charts, The latest chart can be f
 9. update **UI** and **Notary** svc.yaml templates to include **NodePort** for ingress
 10. Install chart using custom values.yaml file
 11. Wait a few minutes before attempting to access the environment
+
 *on first access the system will take time to start up with a "Loading..." screen, or a 502 Bad Gateway message, after about 10 minutes it will come up
 
 Post Installtion Configuration steps:
@@ -35,18 +36,18 @@ Post Installtion Configuration steps:
 2. create projects (public or private)
 3. add members to projects
 
-### Demo Environment:
+### Demo Environment
 GKE work:
 1. setup ingress
 2. setup lets encrypt (see GKE repo for notes)
 
 install harbor:
-helm install --debug --name demo -f demo-values.yaml
+`helm install --debug --name demo -f demo-values.yaml .`
 
 to upgrade a release::
-helm upgrade demo --debug -f demo-values.yaml .
+`helm upgrade demo --debug -f demo-values.yaml .`
 
-## Using Harbor:
+## Using Harbor
 
 setup:
 1. create user named `demo-admin` and `demo-dev`
@@ -111,7 +112,7 @@ Links:
 
 
 --- 
-#### Additional: 
+#### Additional
 LDAP integration (using online LDAP test server)
 - set ldap settings in values.yaml file for helm chart to include settings for ldap server.
 - finding issue adding groups under administration.
