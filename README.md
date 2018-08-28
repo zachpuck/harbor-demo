@@ -115,7 +115,8 @@ Links:
 #### Additional
 LDAP integration (using online LDAP test server)
 - set ldap settings in values.yaml file for helm chart to include settings for ldap server.
-- finding issue adding groups under administration.
+- Example Authentication Settings:
+![LDAP Settings](ldap_config.png)
 
 Oauth2: 
 Part of roadmap but work has not started yet: https://github.com/goharbor/harbor/blob/master/ROADMAP.md
