@@ -34,8 +34,21 @@ secretKey: Xnaatv9mQ8hkYtsaAX8LKCTK
 
 # ingress controller.
 ingress:
-# I am setting up ingress outside of habor deploy
-  enabled: false
+  enabled: true
+  hosts:
+    core: harbor.domain.io
+    notary: notary.harbor.domain.io
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+  tls:
+    enabled: true
+    # Fill the secretName if you want to use the certificate of 
+    # yourself when Harbor serves with HTTPS. A certificate will 
+    # be generated automatically by the chart if leave it empty
+    secretName: "wildcard_cert_secret"
 
 
 # The tag for Harbor docker images.

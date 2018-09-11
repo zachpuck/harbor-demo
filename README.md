@@ -21,13 +21,19 @@ It is recommended to install Harbor using Helm Charts, The latest chart can be f
 2. K8s ingress controller enabled
 3. Helm and Tiller (with clusteradmin permissions) - this is for cert manager not harbor
 4. SSL certificates. (I used lets Encrypt cert-manager to accomplish this)
-5. add harbor and notary urls to Ingress (I do this outside of the harbor install and disable ingress as part of the install steps of the harbor helm charts)
-6. setup storage (S3)
-7. clone [harbor-helm repo](https://github.com/goharbor/harbor-helm)
-8. update harbors helm values.yaml file with changes: (Some major ones of note: externalDomain, AdminPassword, AuthenticationMode(local or LDAP), Email, secretKey. Disable ingress, Storage for registry)
-9. update **UI** and **Notary** svc.yaml templates to include **NodePort** for ingress
-10. Install chart using custom values.yaml file
-11. Wait a few minutes before attempting to access the environment
+5. setup storage (S3)
+6. clone [harbor-helm repo](https://github.com/goharbor/harbor-helm)
+7. update harbors helm values.yaml file with changes: 
+    1. externalDomain
+    2. AdminPassword
+    3. AuthenticationMode(local or LDAP)
+    4. Email
+    5. secretKey
+    6. ingress core and notary domain
+    7. ingress SecretName (for certificate)
+    8. Storage for registry (s3)
+8.  Install chart using custom values.yaml file
+9.  Wait a few minutes before attempting to access the environment
 
 *on first access the system will take time to start up with a "Loading..." screen, or a 502 Bad Gateway message, after about 10 minutes it will come up
 
@@ -38,8 +44,7 @@ Post Installtion Configuration steps:
 
 ### Demo Environment
 GKE work:
-1. setup ingress
-2. setup lets encrypt (see GKE repo for notes)
+1. setup lets encrypt (see GKE repo for notes)
 
 install harbor:
 `helm install --debug --name demo -f demo-values.yaml .`
